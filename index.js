@@ -51,10 +51,10 @@ io.on('connection', (socket) => {
     console.log('User disconnected:', socket.id);
   });
 
-  // socket.on("task_updated", (data) => {
-  //   console.log("data",data)
-  //   io.emit("task_"+data["id"], data);
-  // });
+  socket.on("task_updated", (data) => {
+    console.log("data",data)
+    io.emit("task_"+data["id"], data);
+  });
 });
 
 server.listen(process.env.PORT, () => {
