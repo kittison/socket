@@ -1,0 +1,59 @@
+const express = require('express');
+const cors = require('cors');
+const http = require('http'); 
+const { Server } = require('socket.io');
+require('dotenv').config();
+
+const app = express();
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+        origin: "http://192.168.21.14:3000",
+        methods: ["GET", "POST"],
+        credentials: true
+    },
+});
+
+io.use(function (socket, next){
+  console.log(`User ${socket.id} ${socket.handshake.auth}`);
+  if (socket.handshake.auth.token==config.socket_key) {
+      next();
+  }
+  else {
+      next(new Error("invalid session"));
+  }
+});
+
+io.on('connection', (socket) => {
+  console.log('A user connected:', socket.id);
+
+  // Listen for a custom event from the client
+  socket.on('message', (data) => {
+    console.log('Message received:', data);
+
+    // Emit a message back to the client
+    socket.emit('response', { message: 'Message received on server!' });
+  });
+
+  // Handle disconnection
+  socket.on('disconnect', () => {
+    console.log('User disconnected:', socket.id);
+  });
+
+  // socket.on("task_updated", (data) => {
+  //   console.log("data",data)
+  //   io.emit("task_"+data["id"], data);
+  // });
+});
+
+server.listen(config.port, () => {
+  console.log(`Server is running on port ${config.port}`);
+});
+
+module.exports = server;
