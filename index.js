@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const http = require('http'); 
 const { Server } = require('socket.io');
+const router = express.Router();
 require('dotenv').config();
 
 const app = express();
@@ -10,6 +11,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use('/', router.get('/', (req, res) => {
+  res.json(req.body)
+}));
 
 const server = http.createServer(app);
 const io = new Server(server, {
@@ -22,7 +27,7 @@ const io = new Server(server, {
 
 io.use(function (socket, next){
   console.log(`User ${socket.id} ${socket.handshake.auth}`);
-  if (socket.handshake.auth.token==config.socket_key) {
+  if (socket.handshake.auth.token==process.env.SOCKET_KEY) {
       next();
   }
   else {
@@ -52,8 +57,8 @@ io.on('connection', (socket) => {
   // });
 });
 
-server.listen(config.port, () => {
-  console.log(`Server is running on port ${config.port}`);
+server.listen(process.env.PORT, () => {
+  console.log(`Server is running on port ${process.env.PORT}`);
 });
 
 module.exports = server;
