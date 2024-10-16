@@ -53,7 +53,7 @@ io.on('connection', (socket) => {
 
   socket.on("task_updated", (data) => {
     console.log("data",data)
-    io.emit("task_"+data["id"], data);
+    io.emit("task_"+data["_id"], data);
   });
 });
 
