@@ -19,14 +19,14 @@ app.use('/', router.get('/', (req, res) => {
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-        origin: "http://192.168.21.14:3000",
+        origin: "http://192.168.21.14:3300",
         methods: ["GET", "POST"],
         credentials: true
     },
 });
 
 io.use(function (socket, next){
-  console.log(`User ${socket.id} ${socket.handshake.auth}`);
+  // console.log(`User ${socket.id} ${socket.handshake.auth}`);
   if (socket.handshake.auth.token==process.env.SOCKET_KEY) {
       next();
   }
@@ -53,7 +53,11 @@ io.on('connection', (socket) => {
 
   socket.on("task_updated", (data) => {
     console.log("data",data)
-    io.emit("task_"+data["_id"], data);
+    try {
+      io.emit("task_"+data["data"]["task"], data);
+    } catch (error) {
+      console.log(error.message);
+    }
   });
 });
 
